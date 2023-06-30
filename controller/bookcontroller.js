@@ -1,10 +1,10 @@
-// import { Request, Response } from 'express';
 import Booktable from "../model/book.js";
 import mongoose from "mongoose";
 import { validationResult } from "express-validator";
 import bcryptjs from "bcryptjs"
-import Jwt  from "jsonwebtoken";
+import Jwt from "jsonwebtoken";
 import multer from "multer";
+import APP_STATUS from "../constants/constants.js";
 
 export const storage = multer.diskStorage({
     destination: function (request, file, cb) {
@@ -22,7 +22,7 @@ export const Addbook = async (request, response) => {
     const error = validationResult(request);
     if (!error.isEmpty()) {
         return response.status(200).json({
-            // status : APP_STATUS.FAILED,
+            status: APP_STATUS.FAILED,
             data: null,
             error: error.array()
         });
@@ -37,7 +37,7 @@ export const Addbook = async (request, response) => {
         let chekbookname = await Booktable.findOne({ Bookname: Bookname });
         if (chekbookname) {
             return response.status(200).json({
-                // status : APP_STATUS.FAILED,
+                status: APP_STATUS.FAILED,
                 data: null,
                 msg: "Bookname is Already exits"
             });
@@ -51,7 +51,6 @@ export const Addbook = async (request, response) => {
             password: hashpassword,
             email: email,
             image: request.file.filename
-
         };
 
         thebookobj = await new Booktable(thebookobj).save();
@@ -64,20 +63,18 @@ export const Addbook = async (request, response) => {
     }
     catch (error) {
         return response.status(400).json({
-            // status : APP_STATUS.FAILED,
+            status: APP_STATUS.FAILED,
             data: null,
             error: error.message
         });
     }
 };
 
-
-
 export const loginbook = async (request, response) => {
     const error = validationResult(request);
     if (!error.isEmpty()) {
         return response.status(200).json({
-            // status: APP_STATUS.FAILED,
+            status: APP_STATUS.FAILED,
             data: null,
             error: error.array()
         });
@@ -88,7 +85,7 @@ export const loginbook = async (request, response) => {
         let thebookobj = await Booktable.findOne({ email: email });
         if (!thebookobj) {
             return response.status(400).json({
-                // status: APP_STATUS.FAILED,
+                status: APP_STATUS.FAILED,
                 data: null,
                 error: "invalid email"
             });
@@ -97,7 +94,7 @@ export const loginbook = async (request, response) => {
         let ismatch = await bcryptjs.compare(password, thebookobj.password)
         if (!ismatch) {
             return response.status(400).json({
-                // status: APP_STATUS.FAILED,
+                status: APP_STATUS.FAILED,
                 data: null,
                 error: "invalid password"
             });
@@ -106,16 +103,16 @@ export const loginbook = async (request, response) => {
         let secretkey = process.env.JWT_SECRET_KEY;
 
         let payload = {
-                _id:thebookobj._id,
-                Bookname :thebookobj.Bookname,
-                AutherName : thebookobj.AutherName,
-                Bookversion : thebookobj.Bookversion,
-                price:thebookobj.price,
-                pages:thebookobj.pages,
-                email: thebookobj.email,
-                password: thebookobj.password,
-                image:thebookobj.image
-            };
+            _id: thebookobj._id,
+            Bookname: thebookobj.Bookname,
+            AutherName: thebookobj.AutherName,
+            Bookversion: thebookobj.Bookversion,
+            price: thebookobj.price,
+            pages: thebookobj.pages,
+            email: thebookobj.email,
+            password: thebookobj.password,
+            image: thebookobj.image
+        };
         if (payload && secretkey) {
             Jwt.sign(payload, secretkey, {
                 expiresIn: 5682394
@@ -123,7 +120,7 @@ export const loginbook = async (request, response) => {
                 if (error) throw error;
                 if (encoded) {
                     return response.status(200).json({
-                        // status: APP_STATUS.SUCCESS,
+                        status: APP_STATUS.SUCCESS,
                         msg: "Login SuccessFully",
                         data: thebookobj,
                         token: encoded
@@ -134,7 +131,7 @@ export const loginbook = async (request, response) => {
     }
     catch (error) {
         return response.status(400).json({
-            // status: APP_STATUS.FAILED,
+            status: APP_STATUS.FAILED,
             data: null,
             error: error.message
         });
@@ -149,90 +146,91 @@ export const getbook = async (request, response) => {
     }
     catch (error) {
         return response.status(400).json({
-            // status: APP_STATUS.FAILED,
+            status: APP_STATUS.FAILED,
             data: null,
             error: error.message
         });
     }
 };
 
-// exports.singlebook = async (request, response) => {
-//     // const {  Bookname } = request.query,Bookname;
+// export const singlebook = async (request, response) => {
 //     try {
-//          var { _id , Bookname}= request.query
-//         console.log(Bookname);
-//         if (_id ) {
-//             const mongobookid = {_id,Bookname}
-//             const book = await Booktable.findOne({"_id":mongobookid} || {"Bookname":mongobookid});
-
+//             const { _id, Bookname } = request.query;
+//         if (_id) {
+//             const book = await Booktable.findOne({ _id });
 //             if (!book) {
-//                 return response.status(400).json({
-//                     // status: APP_STATUS.FAILED,
+//                 return response.status(404).json({
 //                     data: null,
-//                     msg: "Book Not Found"
+//                     error: "Book Not Found"
 //                 });
 //             }
 //             return response.status(200).json(book);
+
+//         } else if (Bookname) {
+//             const book = await Booktable.findOne({ Bookname });
+//             if (!book) {
+//                 return response.status(404).json({
+//                     data: null,
+//                     error: "Book Not Found"
+//                 });
+//             }
+//             return response.status(200).json(book);
+//         } else {
+//             return response.status(400).json({
+//                 data: null,
+//                 error: "Missing required parameters"
+//             });
 //         }
-//     }
-//     catch (error) {
-//         return response.status(400).json({
-//             // status: APP_STATUS.FAILED,
+//     } catch (error) {
+//         return response.status(500).json({
 //             data: null,
 //             error: error.message
 //         });
 //     }
 // };
-//const Booktable = require('../models/Booktable');
+
+
 
 export const singlebook = async (request, response) => {
     try {
-            const { _id, Bookname } = request.query;
-        if (_id) {
-            const book = await Booktable.findOne({ _id });
+        const { _id, Bookname } = request.query
+        if (_id || Bookname) {
+            const book = await Booktable.findOne({ _id } || { Bookname })
+
             if (!book) {
                 return response.status(404).json({
+                    status: APP_STATUS.FAILED,
                     data: null,
-                    error: "Book Not Found"
-                });
+                    error: "Book not found"
+                })
             }
-
-            return response.status(200).json(book);
-
-        } else if (Bookname) {
-            const book = await Booktable.findOne({ Bookname });
-            if (!book) {
-                return response.status(404).json({
-                    data: null,
-                    error: "Book Not Found"
-                });
-            }
-            return response.status(200).json(book);
+            return response.status(200).json(book)
         } else {
-            return response.status(400).json({
+            return response.status(500).json({
                 data: null,
-                error: "Missing required parameters"
-            });
+                error: "Missing required parameter"
+            })
         }
     } catch (error) {
         return response.status(500).json({
+            status: APP_STATUS.FAILED,
             data: null,
             error: error.message
-        });
+        })
     }
-};
+}
 
 export const updatebook = async (request, response) => {
     let { bookid } = request.params;
     try {
-        let { _id, Bookname, AutherName, Bookversion, price, pages, password, email } = request.body;
+        let { _id, Bookname, AutherName, Bookversion, price, pages, password, email, image } = request.body;
 
         const mongobookid = new mongoose.Types.ObjectId(bookid);
         const book = await Booktable.findById(mongobookid);
 
         if (!book) {
             return response.status(400).json({
-                // status: APP_STATUS.FAILED,
+                status: APP_STATUS.FAILED,
                 data: null,
                 msg: "Book Not Found"
             });
@@ -246,7 +244,7 @@ export const updatebook = async (request, response) => {
             pages: pages,
             password: password,
             email: email,
-            // image: image
+            image: image
         };
         thebookobj = await Booktable.findByIdAndUpdate(mongobookid, { $set: thebookobj }, { new: true });
         if (thebookobj) {
@@ -255,12 +253,10 @@ export const updatebook = async (request, response) => {
                 data: thebookobj
             });
         }
-    
     }
-    
     catch (error) {
         return response.status(200).json({
-            // status: APP_STATUS.FAILED,
+            status: APP_STATUS.FAILED,
             data: null,
             error: error.message
         });
@@ -276,7 +272,7 @@ export const deletebook = async (request, response) => {
 
             if (!book) {
                 return response.status(400).json({
-                    // status: APP_STATUS.FAILED,
+                    status: APP_STATUS.FAILED,
                     data: null,
                     msg: "Book not Found"
                 });
@@ -284,7 +280,7 @@ export const deletebook = async (request, response) => {
             let thebookobj = await Booktable.findByIdAndDelete(mongobookid);
             if (thebookobj) {
                 return response.status(200).json({
-                    // status: APP_STATUS.SUCCESS,
+                    status: APP_STATUS.SUCCESS,
                     data: null,
                     msg: "Book SuccessFully Deleted...!"
                 });
@@ -292,7 +288,7 @@ export const deletebook = async (request, response) => {
         }
     } catch (error) {
         return response.status(400).json({
-            // status: APP_STATUS.FAILED,
+            status: APP_STATUS.FAILED,
             data: null,
             error: error.message
         });
@@ -300,5 +296,5 @@ export const deletebook = async (request, response) => {
 }
 
 export const getUsersData = async (request, response) => {
-    
+
 };

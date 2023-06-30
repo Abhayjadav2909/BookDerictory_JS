@@ -3,4 +3,4 @@ const APP_STATUS = {
     SUCCESS: "success"
 };
 
-module.exports = APP_STATUS
+export default APP_STATUS
