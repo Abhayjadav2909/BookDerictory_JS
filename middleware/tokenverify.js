@@ -15,11 +15,10 @@ export const tokenverify = async (request, response, next) => {
                 let decodeObj = await jwt.verify(token, secretkey);
                 next();
                 console.log(decodeObj);
-                if (decodeObj) {
+                if (decodeObj)      {
                     return response.status(200).json({
                         msg: " A Valid token",
                         data: decodeObj
-
                     })
                 }
             } else {
@@ -28,7 +27,6 @@ export const tokenverify = async (request, response, next) => {
                 });
             }
         }
-
     } catch (error) {
         return response.status(500).json({
             msg: 'Unauthorized!, its an invalid token'

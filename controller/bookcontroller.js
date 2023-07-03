@@ -5,6 +5,13 @@ import bcryptjs from "bcryptjs"
 import Jwt from "jsonwebtoken";
 import multer from "multer";
 import APP_STATUS from "../constants/constants.js";
+import fs from "fs";
+import path from "path"
+import { fileURLToPath } from "url";
+
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export const storage = multer.diskStorage({
     destination: function (request, file, cb) {
@@ -115,7 +122,7 @@ export const loginbook = async (request, response) => {
         };
         if (payload && secretkey) {
             Jwt.sign(payload, secretkey, {
-                expiresIn: 5682394
+                expiresIn: 9809890
             }, (error, encoded) => {
                 if (error) throw error;
                 if (encoded) {
@@ -148,14 +155,15 @@ export const getbook = async (request, response) => {
         return response.status(400).json({
             status: APP_STATUS.FAILED,
             data: null,
-            error: error.message
+            error: error.message,
+
         });
     }
 };
 
 // export const singlebook = async (request, response) => {
 //     try {
-//             const { _id, Bookname } = request.query;
+//         const { _id, Bookname } = request.query;
 //         if (_id) {
 //             const book = await Booktable.findOne({ _id });
 //             if (!book) {
@@ -189,14 +197,11 @@ export const getbook = async (request, response) => {
 //     }
 // };
 
-
-
 export const singlebook = async (request, response) => {
     try {
         const { _id, Bookname } = request.query
         if (_id || Bookname) {
             const book = await Booktable.findOne({ _id } || { Bookname })
-
             if (!book) {
                 return response.status(404).json({
                     status: APP_STATUS.FAILED,
@@ -277,7 +282,18 @@ export const deletebook = async (request, response) => {
                     msg: "Book not Found"
                 });
             }
-            let thebookobj = await Booktable.findByIdAndDelete(mongobookid);
+
+            var pathh = path.join(__dirname, `../upload_image/${book.image}`);
+            fs.unlink(pathh, (err, result) => {
+                console.log("comming");
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("yes");
+                }
+            });
+
+            let thebookobj = await Booktable.findByIdAndDelete(mongobookid)
             if (thebookobj) {
                 return response.status(200).json({
                     status: APP_STATUS.SUCCESS,

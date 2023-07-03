@@ -1,4 +1,4 @@
-import express, { request, response } from 'express';
+import express from 'express';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -17,7 +17,7 @@ const DbUrl = process.env.DB_URL_NAME;
 
 
 mongoose.connect(DbUrl).then(() => {
-    console.log("mongoDB connection SuccessFully..!");
+    console.log("mongoDB connection SuccessFully..!!!");
 }).catch(error => {
     console.log("mongodb connection Failed");
 })
@@ -35,9 +35,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicPath = path.join(__dirname, "./upload_image")
 app.use(express.static(publicPath));
-console.log(publicPath);
-
+app.use(bodyparser.urlencoded({extended:true}))
+app.use("/upload_image",express.static(publicPath))
 app.use("/book", BookRouter);
+
 
 app.listen(port, () => {
     console.log(`Server Has Been Started at http://localhost:${port}`);
