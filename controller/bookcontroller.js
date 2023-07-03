@@ -161,69 +161,41 @@ export const getbook = async (request, response) => {
     }
 };
 
-// export const singlebook = async (request, response) => {
-//     try {
-//         const { _id, Bookname } = request.query;
-//         if (_id) {
-//             const book = await Booktable.findOne({ _id });
-//             if (!book) {
-//                 return response.status(404).json({
-//                     data: null,
-//                     error: "Book Not Found"
-//                 });
-//             }
-//             return response.status(200).json(book);
-
-//         } else if (Bookname) {
-//             const book = await Booktable.findOne({ Bookname });
-//             if (!book) {
-//                 return response.status(404).json({
-//                     data: null,
-//                     error: "Book Not Found"
-//                 });
-//             }
-//             return response.status(200).json(book);
-//         } else {
-//             return response.status(400).json({
-//                 data: null,
-//                 error: "Missing required parameters"
-//             });
-//         }
-//     } catch (error) {
-//         return response.status(500).json({
-//             data: null,
-//             error: error.message
-//         });
-//     }
-// };
-
 export const singlebook = async (request, response) => {
     try {
-        const { _id, Bookname } = request.query
-        if (_id || Bookname) {
-            const book = await Booktable.findOne({ _id } || { Bookname })
+        const { _id, Bookname } = request.query;
+        if (_id) {
+            const book = await Booktable.findOne({ _id });
             if (!book) {
                 return response.status(404).json({
-                    status: APP_STATUS.FAILED,
                     data: null,
-                    error: "Book not found"
-                })
+                    error: "Book Not Found"
+                });
             }
-            return response.status(200).json(book)
+            return response.status(200).json(book);
+
+        } else if (Bookname) {
+            const book = await Booktable.findOne({ Bookname });
+            if (!book) {
+                return response.status(404).json({
+                    data: null,
+                    error: "Book Not Found"
+                });
+            }
+            return response.status(200).json(book);
         } else {
-            return response.status(500).json({
+            return response.status(400).json({
                 data: null,
-                error: "Missing required parameter"
-            })
+                error: "Missing required parameters"
+            });
         }
     } catch (error) {
         return response.status(500).json({
-            status: APP_STATUS.FAILED,
             data: null,
             error: error.message
-        })
+        });
     }
-}
+};
 
 export const updatebook = async (request, response) => {
     let { bookid } = request.params;
@@ -285,7 +257,6 @@ export const deletebook = async (request, response) => {
 
             var pathh = path.join(__dirname, `../upload_image/${book.image}`);
             fs.unlink(pathh, (err, result) => {
-                console.log("comming");
                 if (err) {
                     console.log(err);
                 } else {

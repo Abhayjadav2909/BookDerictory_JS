@@ -1,5 +1,4 @@
 import express, { Router }  from 'express';
-// const BookRouter = express.Router();
 import { body } from "express-validator";
 import { loginbook, getUsersData, deletebook, updatebook, singlebook, getbook, Addbook } from "../controller/bookcontroller.js"
 import {tokenverify} from "../middleware/tokenverify.js"
@@ -28,7 +27,7 @@ BookRouter.post("/register", upload.single("image"), [
 // URL = http://localhost:1245/book/login
 BookRouter.post("/login", [
     body("password").not().isEmpty().withMessage("password is Required"),
-    body("email").not().isEmpty().withMessage("email is Required"),
+    body("email").not().isEmpty().withMessage("email is Required")
 ], async (request, response) => {
     await loginbook(request, response);
 });
@@ -47,7 +46,7 @@ BookRouter.get("/search", async (request, response) => {
 
 // API = PUT
 // URL = http://localhost:1245/book/objectId
-BookRouter.put("/:bookid", async (request, response) => {
+BookRouter.put("/:bookid", async (request, response) => {   
     await updatebook(request, response);
 });
 

@@ -28,17 +28,16 @@ app.get("/", (request, response) => {
     });
 });
 
-app.use(express.json());
-app.use(bodyparser.json())
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicPath = path.join(__dirname, "./upload_image")
+
+app.use(express.json());
+app.use(bodyparser.json())
 app.use(express.static(publicPath));
 app.use(bodyparser.urlencoded({extended:true}))
 app.use("/upload_image",express.static(publicPath))
 app.use("/book", BookRouter);
-
 
 app.listen(port, () => {
     console.log(`Server Has Been Started at http://localhost:${port}`);
