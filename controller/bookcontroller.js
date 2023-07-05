@@ -22,8 +22,60 @@ export const storage = multer.diskStorage({
     }
 });
 
-export const upload = multer({ storage: storage });
+export const upload = multer({ storage: storage })
 
+// export const Addbook = async (request, response) => {
+//     const error = validationResult(request);
+//     if (!error.isEmpty()) {
+//         return response.status(200).json({
+//             status: APP_STATUS.FAILED,
+//             data: null,
+//             error: error.array()
+//         });
+//     }
+
+//     try {
+//         let { Bookname, AutherName, Bookversion, price, pages, password, email, image } = request.body; 
+
+//         const salt = await bcryptjs.genSalt(10);
+//         const hashpassword = await bcryptjs.hash(password, salt);
+
+//         let chekbookname = await Booktable.findOne({ Bookname: Bookname });
+//         if (chekbookname) {
+//             return response.status(200).json({
+//                 status: APP_STATUS.FAILED,
+//                 data: null,
+//                 msg: "Bookname is Already exits"
+//             });
+//         }
+//         let thebookobj = {
+//             Bookname: Bookname,
+//             AutherName: AutherName,
+//             Bookversion: Bookversion,
+//             price: price,
+//             pages: pages,
+//             password: hashpassword,
+//             email: email,
+//             image: request.file.filename            
+//         };
+//         const file = request.files
+
+//         thebookobj = await new Booktable(thebookobj).save();
+//         if (thebookobj) {
+//             return response.status(200).json({
+//                 msg: "Book Updated",
+//                 data: thebookobj
+//             });
+//         }
+//     }
+//     catch (error) {
+//         return response.status(400).json({
+//             status: APP_STATUS.FAILED,
+//             data: null,
+//             error: error.message
+//         });
+//     }
+// };
 
 export const Addbook = async (request, response) => {
     const error = validationResult(request);
@@ -36,7 +88,7 @@ export const Addbook = async (request, response) => {
     }
 
     try {
-        let { Bookname, AutherName, Bookversion, price, pages, password, email, image } = request.body;
+        let { Bookname, AutherName, Bookversion, price, pages, password, email } = request.body;
 
         const salt = await bcryptjs.genSalt(10);
         const hashpassword = await bcryptjs.hash(password, salt);
@@ -46,9 +98,18 @@ export const Addbook = async (request, response) => {
             return response.status(200).json({
                 status: APP_STATUS.FAILED,
                 data: null,
-                msg: "Bookname is Already exits"
+                msg: "Bookname already exists"
             });
         }
+        let images = [];
+        if (request.files && Array.isArray(request.files)) {
+            // Handle multiple images
+            images = request.files.map(file => file.filename);
+        } else if (request.file) {
+            // Handle single image
+            images.push(request.file.filename);
+        }
+
         let thebookobj = {
             Bookname: Bookname,
             AutherName: AutherName,
@@ -57,7 +118,7 @@ export const Addbook = async (request, response) => {
             pages: pages,
             password: hashpassword,
             email: email,
-            image: request.file.filename
+            images: images
         };
 
         thebookobj = await new Booktable(thebookobj).save();
@@ -67,8 +128,7 @@ export const Addbook = async (request, response) => {
                 data: thebookobj
             });
         }
-    }
-    catch (error) {
+    } catch (error) {
         return response.status(400).json({
             status: APP_STATUS.FAILED,
             data: null,
@@ -76,6 +136,7 @@ export const Addbook = async (request, response) => {
         });
     }
 };
+
 
 export const loginbook = async (request, response) => {
     const error = validationResult(request);
@@ -118,7 +179,7 @@ export const loginbook = async (request, response) => {
             pages: thebookobj.pages,
             email: thebookobj.email,
             password: thebookobj.password,
-            image: thebookobj.image
+            images: thebookobj.images
         };
         if (payload && secretkey) {
             Jwt.sign(payload, secretkey, {
@@ -255,15 +316,16 @@ export const deletebook = async (request, response) => {
                 });
             }
 
-            var pathh = path.join(__dirname, `../upload_image/${book.image}`);
-            fs.unlink(pathh, (err, result) => {
-                if (err) {
-                    console.log(err);
-                } else {
-                    console.log("yes");
-                }
-            });
+            const images = book.images
+            console.log("image deleted",images);
+            for(const imageName of images){
+                const imagepath = path.join(__dirname,`../upload_image/${imageName}`)
+                console.log("deleting file : ",imagepath)
+                fs.unlinkSync(imagepath)
+            }
 
+
+            
             let thebookobj = await Booktable.findByIdAndDelete(mongobookid)
             if (thebookobj) {
                 return response.status(200).json({
@@ -281,6 +343,8 @@ export const deletebook = async (request, response) => {
         });
     }
 }
+
+
 
 export const getUsersData = async (request, response) => {
 

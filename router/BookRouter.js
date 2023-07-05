@@ -10,18 +10,30 @@ const BookRouter = Router()
 
 // API = POST
 // URL = http://localhost:1245/book/register
-BookRouter.post("/register", upload.single("image"), [
+
+// BookRouter.post("/register", upload.single("image"),[
+//     body("Bookname").not().isEmpty().withMessage("Bookname is Required"),
+//     body("AutherName").not().isEmpty().withMessage("AutherName is Required"),
+//     body("Bookversion").not().isEmpty().withMessage("Bookversion is Required"),
+//     body("price").not().isEmpty().withMessage("price is Required"),
+//     body("pages").not().isEmpty().withMessage("pages is Required"),
+//     body("password").not().isEmpty().withMessage("password is Required"),
+//     body("email").not().isEmpty().withMessage("email is Required")
+// ], async (request, response) => {
+//     await Addbook(request, response);
+// });
+
+BookRouter.post("/register", upload.array("image",2),[
     body("Bookname").not().isEmpty().withMessage("Bookname is Required"),
     body("AutherName").not().isEmpty().withMessage("AutherName is Required"),
     body("Bookversion").not().isEmpty().withMessage("Bookversion is Required"),
     body("price").not().isEmpty().withMessage("price is Required"),
     body("pages").not().isEmpty().withMessage("pages is Required"),
-    body("password").not().isEmpty().withMessage("password is Required"),
+    body("password").not().isEmpty().withMessage("password is Required"),       
     body("email").not().isEmpty().withMessage("email is Required")
 ], async (request, response) => {
     await Addbook(request, response);
 });
-
 
 // API = POST
 // URL = http://localhost:1245/book/login
